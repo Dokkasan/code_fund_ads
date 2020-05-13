@@ -103,7 +103,8 @@ class User < ApplicationRecord
   has_many :organizations, through: :organization_users
   has_many :referred_users, class_name: "User", foreign_key: "referring_user_id"
   has_many :managed_accounts, class_name: "Organization", foreign_key: "account_manager_user_id"
-  has_and_belongs_to_many :inbound_emails
+  has_many :inbound_emails_users
+  has_many :inbound_emails, through: :inbound_emails_users
 
   # validations ...............................................................
   validates :first_name, presence: true
@@ -235,6 +236,11 @@ class User < ApplicationRecord
     organizations.load unless organizations.loaded?
     ou = organization_users.find(&:administrator?) || organization_users.find(&:member?)
     ou&.organization || organization
+  end
+
+  def unopened_emails
+    return unless inbound_emails_users.exists?
+    inbound_emails_users.unopened_emails.collect(&:inbound_email)
   end
 
   def administrator?

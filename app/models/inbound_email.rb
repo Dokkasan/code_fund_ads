@@ -18,7 +18,8 @@ class InboundEmail < ApplicationRecord
   # includes ..................................................................
 
   # relationships .............................................................
-  has_and_belongs_to_many :users
+  has_many :inbound_emails_users
+  has_many :users, through: :inbound_emails_users
 
   # validations ...............................................................
   validates :delivered_at, presence: true
@@ -40,6 +41,9 @@ class InboundEmail < ApplicationRecord
     [sender, recipients].flatten.compact.sort
   end
 
+  def sent_by
+    User.find_by(email: sender) || sender
+  end
   # protected instance methods ................................................
 
   # private instance methods ..................................................

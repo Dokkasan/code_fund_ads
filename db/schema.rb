@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_11_174710) do
+ActiveRecord::Schema.define(version: 2020_05_13_202439) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_stat_statements"
@@ -335,9 +335,12 @@ ActiveRecord::Schema.define(version: 2020_05_11_174710) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "inbound_emails_users", id: false, force: :cascade do |t|
+  create_table "inbound_emails_users", force: :cascade do |t|
     t.bigint "inbound_email_id", null: false
     t.bigint "user_id", null: false
+    t.datetime "opened_at"
+    t.datetime "created_at", precision: 6, default: -> { "now()" }, null: false
+    t.datetime "updated_at", precision: 6, default: -> { "now()" }, null: false
     t.index ["inbound_email_id"], name: "index_inbound_emails_users_on_inbound_email_id"
     t.index ["user_id"], name: "index_inbound_emails_users_on_user_id"
   end

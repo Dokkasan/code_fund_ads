@@ -1,13 +1,6 @@
 class ApplicationComponent < ViewComponent::Base
   include Frontend::TableHelper
-
-  def current_user
-    helpers.current_user
-  end
-
-  def authorized_user
-    helpers.authorized_user
-  end
+  delegate :current_user, :authorized_user, :true_user, to: :helpers
 
   def status_color(status)
     case status.to_sym

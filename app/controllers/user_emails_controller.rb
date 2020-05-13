@@ -3,6 +3,7 @@ class UserEmailsController < ApplicationController
   before_action :authorize_view!
   before_action :set_user
   before_action :set_email, only: :show
+  before_action :set_opened, only: :show
 
   def index
     inbound_emails = @user.inbound_emails.order(delivered_at: :desc)
@@ -17,6 +18,12 @@ class UserEmailsController < ApplicationController
     else
       current_user
     end
+  end
+
+  def set_opened
+    ieu = @email.inbound_emails_users.find_by(user: @user)
+    return unless ieu.opened_at.nil?
+    ieu.update(opened_at: Time.current.iso8601)
   end
 
   def set_email

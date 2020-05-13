@@ -708,8 +708,31 @@ ALTER SEQUENCE public.inbound_emails_id_seq OWNED BY public.inbound_emails.id;
 
 CREATE TABLE public.inbound_emails_users (
     inbound_email_id bigint NOT NULL,
-    user_id bigint NOT NULL
+    user_id bigint NOT NULL,
+    id bigint NOT NULL,
+    opened_at timestamp without time zone,
+    created_at timestamp(6) without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp(6) without time zone DEFAULT now() NOT NULL
 );
+
+
+--
+-- Name: inbound_emails_users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.inbound_emails_users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: inbound_emails_users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.inbound_emails_users_id_seq OWNED BY public.inbound_emails_users.id;
 
 
 --
@@ -1583,6 +1606,13 @@ ALTER TABLE ONLY public.inbound_emails ALTER COLUMN id SET DEFAULT nextval('publ
 
 
 --
+-- Name: inbound_emails_users id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.inbound_emails_users ALTER COLUMN id SET DEFAULT nextval('public.inbound_emails_users_id_seq'::regclass);
+
+
+--
 -- Name: job_postings id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1776,6 +1806,14 @@ ALTER TABLE ONLY public.events
 
 ALTER TABLE ONLY public.inbound_emails
     ADD CONSTRAINT inbound_emails_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: inbound_emails_users inbound_emails_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.inbound_emails_users
+    ADD CONSTRAINT inbound_emails_users_pkey PRIMARY KEY (id);
 
 
 --
@@ -3122,4 +3160,5 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200505193112'),
 ('20200505203735'),
 ('20200507164638'),
-('20200511174710');
+('20200511174710'),
+('20200513202439');
