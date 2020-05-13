@@ -5,13 +5,14 @@ class IncomingMailbox < ApplicationMailbox
   before_processing :verify_participants
 
   def process
-    email = InboundEmail.create! \
+    email = Email.create! \
       action_mailbox_inbound_email_id: inbound_email.id,
       sender: mail.from.first,
       recipients: (mail.to.to_a + mail.cc.to_a).uniq.compact.sort,
       subject: mail.subject,
       snippet: snippet,
       body: body,
+      direction: :inbound,
       delivered_at: (begin
                        DateTime.parse(mail.raw_source.match(%r{Date: (.*)\r\n})[1])
                      rescue
