@@ -4,7 +4,7 @@
 #
 #  id                              :bigint           not null, primary key
 #  body                            :text
-#  delivered_at                    :string           not null
+#  delivered_at                    :datetime         not null
 #  direction                       :integer          default("inbound")
 #  recipients                      :string           default([]), not null, is an Array
 #  sender                          :string

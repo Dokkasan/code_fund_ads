@@ -4,7 +4,7 @@
 #
 #  id                              :bigint           not null, primary key
 #  body                            :text
-#  delivered_at                    :string           not null
+#  delivered_at                    :datetime         not null
 #  direction                       :integer          default("inbound")
 #  recipients                      :string           default([]), not null, is an Array
 #  sender                          :string
@@ -47,6 +47,10 @@ class Email < ApplicationRecord
     [sender, recipients].flatten.compact.sort
   end
 
+  def sending_user
+    @sender ||= User.find_by(email: sender)
+  end
+ 
   # protected instance methods ................................................
   # private instance methods ..................................................
 end

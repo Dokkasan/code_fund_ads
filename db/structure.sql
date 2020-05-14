@@ -574,7 +574,7 @@ ALTER SEQUENCE public.daily_summaries_id_seq OWNED BY public.daily_summaries.id;
 CREATE TABLE public.emails (
     id bigint NOT NULL,
     body text,
-    delivered_at character varying NOT NULL,
+    delivered_at timestamp without time zone NOT NULL,
     recipients character varying[] DEFAULT '{}'::character varying[] NOT NULL,
     sender character varying,
     snippet text,
@@ -603,6 +603,16 @@ CREATE SEQUENCE public.emails_id_seq
 --
 
 ALTER SEQUENCE public.emails_id_seq OWNED BY public.emails.id;
+
+
+--
+-- Name: emails_users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.emails_users (
+    email_id bigint NOT NULL,
+    user_id bigint NOT NULL
+);
 
 
 --
@@ -808,53 +818,6 @@ CREATE TABLE public.impressions_default (
     province_code character varying
 );
 ALTER TABLE ONLY public.impressions ATTACH PARTITION public.impressions_default DEFAULT;
-
-
---
--- Name: inbound_emails; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.inbound_emails (
-    id bigint NOT NULL,
-    action_mailbox_inbound_email_id bigint NOT NULL,
-    sender character varying NOT NULL,
-    recipients text[] DEFAULT '{}'::text[] NOT NULL,
-    subject text,
-    snippet text,
-    body text,
-    delivered_at timestamp without time zone NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
-);
-
-
---
--- Name: inbound_emails_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.inbound_emails_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: inbound_emails_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.inbound_emails_id_seq OWNED BY public.inbound_emails.id;
-
-
---
--- Name: inbound_emails_users; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.inbound_emails_users (
-    inbound_email_id bigint NOT NULL,
-    user_id bigint NOT NULL
-);
 
 
 --
@@ -1727,13 +1690,6 @@ ALTER TABLE ONLY public.events ALTER COLUMN id SET DEFAULT nextval('public.event
 
 
 --
--- Name: inbound_emails id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.inbound_emails ALTER COLUMN id SET DEFAULT nextval('public.inbound_emails_id_seq'::regclass);
-
-
---
 -- Name: job_postings id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1927,14 +1883,6 @@ ALTER TABLE ONLY public.emails
 
 ALTER TABLE ONLY public.events
     ADD CONSTRAINT events_pkey PRIMARY KEY (id);
-
-
---
--- Name: inbound_emails inbound_emails_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.inbound_emails
-    ADD CONSTRAINT inbound_emails_pkey PRIMARY KEY (id);
 
 
 --
@@ -2903,6 +2851,20 @@ CREATE INDEX index_emails_on_sender ON public.emails USING btree (sender);
 
 
 --
+-- Name: index_emails_users_on_email_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_emails_users_on_email_id ON public.emails_users USING btree (email_id);
+
+
+--
+-- Name: index_emails_users_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_emails_users_on_user_id ON public.emails_users USING btree (user_id);
+
+
+--
 -- Name: index_events_on_eventable_id_and_eventable_type; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2914,20 +2876,6 @@ CREATE INDEX index_events_on_eventable_id_and_eventable_type ON public.events US
 --
 
 CREATE INDEX index_events_on_user_id ON public.events USING btree (user_id);
-
-
---
--- Name: index_inbound_emails_users_on_inbound_email_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_inbound_emails_users_on_inbound_email_id ON public.inbound_emails_users USING btree (inbound_email_id);
-
-
---
--- Name: index_inbound_emails_users_on_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_inbound_emails_users_on_user_id ON public.inbound_emails_users USING btree (user_id);
 
 
 --
@@ -3919,6 +3867,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200505203735'),
 ('20200507164638'),
 ('20200511174710'),
-('20200513193432');
+('20200513193432'),
+('20200513195822'),
+('20200513210427');
 
 

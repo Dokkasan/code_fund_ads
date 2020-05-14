@@ -12,7 +12,7 @@ class IncomingMailbox < ApplicationMailbox
       subject: mail.subject,
       snippet: snippet,
       body: body,
-      direction: :inbound,
+      direction: direction,
       delivered_at: (begin
                        DateTime.parse(mail.raw_source.match(%r{Date: (.*)\r\n})[1])
                      rescue
@@ -22,18 +22,22 @@ class IncomingMailbox < ApplicationMailbox
 
     return unless email.persisted?
 
-    email.users = User.where(email: email.participant_addresses)
+    email.users = User.where(email: email.participant_addresses)e
   end
 
   private
 
   # Only allow inbound emails with the following criteria:
-  # 1. Sender must be either a publisher or advertiser
-  # 2. Recipient must be a CodeFund administrator
-  # 3. Recipient must have the 'record_inbound_emails' flag set to true
+  # 1. Sender or recipient must be either a publisher or advertiser
+  # 2. Sender or recipient must include a CodeFund administrator with `record_inbound_emails` enabled
   def verify_participants
-    return bounced! unless User.administrators.find_by(email: mail.to)&.record_inbound_emails?
-    return bounced! if !User.advertisers.exists?(email: mail.from) && !User.publishers.exists?(email: mail.from)
+    recipients = (mail.to.to_a + mail.cc.to_a + [mail.from]).flatten.compact.uniq
+    return bounced! unless User.non_administrators.exists?(email: recipients)
+    return bounced! unless User.administrators.where(record_inbound_emails: true).exists?(email: recipients)
+  end
+
+  def direction
+    User.administrators.exists?(email: mail.from) ? :outbound : :inbound
   end
 
   def attachments
@@ -43,7 +47,7 @@ class IncomingMailbox < ApplicationMailbox
         filename: attachment.filename,
         content_type: attachment.content_type
       )
-      {original: attachment, blob: blob}
+      { original: attachment, blob: blob }
     }
   end
 
